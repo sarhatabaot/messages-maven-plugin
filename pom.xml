@@ -17,6 +17,7 @@
         <maven.plugin.tools.version>3.6.4</maven.plugin.tools.version>
         <maven.core.version>3.8.5</maven.core.version>
         <maven.testing.harness.version>3.3.0</maven.testing.harness.version>
+        <maven.checksum.version>1.11</maven.checksum.version>
         <messages.core.version>1.0.2</messages.core.version>
     </properties>
 
@@ -31,7 +32,7 @@
             <plugin>
                 <groupId>net.nicoulaj.maven.plugins</groupId>
                 <artifactId>checksum-maven-plugin</artifactId>
-                <version>1.11</version>
+                <version>${maven.checksum.version}</version>
                 <executions>
                     <execution>
                         <goals>

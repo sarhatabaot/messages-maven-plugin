@@ -18,7 +18,7 @@
         <maven.core.version>3.8.5</maven.core.version>
         <maven.testing.harness.version>3.3.0</maven.testing.harness.version>
         <maven.checksum.version>1.11</maven.checksum.version>
-        <messages.core.version>1.0.2</messages.core.version>
+        <messages.core.version>1.0.3</messages.core.version>
     </properties>
 
     <build>
@@ -78,6 +78,7 @@
             <groupId>com.github.sarhatabaot</groupId>
             <artifactId>messages-core</artifactId>
             <version>${messages.core.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

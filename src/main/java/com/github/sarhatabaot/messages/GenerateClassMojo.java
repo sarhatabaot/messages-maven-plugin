@@ -50,7 +50,6 @@ public class GenerateClassMojo extends AbstractMojo {
         for (File sourceFile : sourceFolder.listFiles()) {
             writeClass.createJavaClassFromJsonFile(sourceFile);
         }
-        //File targetClassFile = new File
     }
 
 

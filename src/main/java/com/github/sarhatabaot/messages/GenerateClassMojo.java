@@ -34,19 +34,20 @@ public class GenerateClassMojo extends AbstractMojo {
     @Parameter(property = "messages.privateconstructor")
     private String privateConstructor;
 
-    private static final String BASE_PATH = "src" + File.separator + "main" + File.separator + "java" + File.separator;
+    @Parameter(property = "messages.basepath", defaultValue = "src/main/java/", readonly = true)
+    private String basePath;
 
     public void execute() throws MojoExecutionException {
         String splitPackage = Util.getPathFromPackage(targetPackage);
 
-        final File targetFolder = new File(mavenProject.getBasedir(), BASE_PATH + splitPackage);
+        final File targetFolder = new File(mavenProject.getBasedir(), basePath + splitPackage);
         if (!sourceFolder.exists())
             throw new MojoExecutionException("Could not find source folder." + sourceFolder.getName());
 
         if (!targetFolder.exists())
             throw new MojoExecutionException("Could not find specified package. " + targetPackage + " " + targetFolder.getPath());
 
-        WriteClass writeClass = new WriteClass(targetPackage,BASE_PATH,privateConstructor,overwriteClasses);
+        WriteClass writeClass = new WriteClass(targetPackage,basePath,privateConstructor,overwriteClasses);
         for (File sourceFile : sourceFolder.listFiles()) {
             writeClass.createJavaClassFromJsonFile(sourceFile);
         }

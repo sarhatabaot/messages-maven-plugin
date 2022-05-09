@@ -8,6 +8,10 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 
 /**
@@ -22,13 +26,16 @@ public class GenerateClassMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject mavenProject;
 
+    @Parameter(property = "messages.filetype")
+    private FileType fileType = FileType.JSON;
+
     @Parameter(property = "messages.overwrite")
     private boolean overwriteClasses;
 
-    @Parameter(required = true, property = "messages.sourcefolder") //source folder to generate classes from
+    @Parameter( property = "messages.sourcefolder") //source folder to generate classes from
     private File sourceFolder;
 
-    @Parameter(required = true, property = "messages.targetpackage") //target should be a package
+    @Parameter(property = "messages.targetpackage") //target should be a package
     private String targetPackage;
 
     @Parameter(property = "messages.privateconstructor")
@@ -47,13 +54,24 @@ public class GenerateClassMojo extends AbstractMojo {
         if (!targetFolder.exists())
             throw new MojoExecutionException("Could not find specified package. " + targetPackage + " " + targetFolder.getPath());
 
-        WriteClass writeClass = new WriteClass(targetPackage,basePath,privateConstructor,overwriteClasses);
-        for (File sourceFile : sourceFolder.listFiles()) {
-            writeClass.createJavaClassFromJsonFile(sourceFile);
+        WriteClass<?> writeClass = null;
+
+        if(fileType == FileType.JSON)
+            writeClass = new WriteJsonClass(targetPackage,basePath,privateConstructor,overwriteClasses);
+
+        if(fileType == FileType.YAML)
+            writeClass= new WriteYamlClass(targetPackage,basePath,privateConstructor,overwriteClasses);
+
+        if(writeClass == null)
+            throw new MojoExecutionException("There was a problem getting the file type");
+
+        if(sourceFolder.isDirectory()){
+            for (File sourceFile : Objects.requireNonNull(sourceFolder.listFiles())) {
+                writeClass.createJavaClass(sourceFile);
+            }
+        } else {
+            writeClass.createJavaClass(sourceFolder);
         }
     }
-
-
-
 
 }

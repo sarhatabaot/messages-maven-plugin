@@ -69,6 +69,6 @@ public class GenerateClassMojo extends AbstractMojo {
         } else {
             writeClass.createJavaClass(sourceFolder);
         }
-    }
 
+    }
 }

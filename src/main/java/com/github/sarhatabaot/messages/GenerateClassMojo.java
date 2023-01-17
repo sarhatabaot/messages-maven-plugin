@@ -1,8 +1,5 @@
 package com.github.sarhatabaot.messages;
 
-import com.github.sarhatabaot.messages.generate.WriteClass;
-import com.github.sarhatabaot.messages.generate.WriteJsonClass;
-import com.github.sarhatabaot.messages.generate.WriteYamlClass;
 import com.github.sarhatabaot.messages.model.FileType;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -10,11 +7,8 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Objects;
 
 
 /**
@@ -25,7 +19,7 @@ import java.util.Objects;
     name = "generate",
     defaultPhase = LifecyclePhase.GENERATE_SOURCES
 )
-public class GenerateClassMojo extends AbstractMojo {
+public class GenerateClassMojo extends AbstractMojo implements MessagesPlugin<MojoExecutionException> {
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject mavenProject;
     
@@ -48,41 +42,46 @@ public class GenerateClassMojo extends AbstractMojo {
     private String basePath;
     
     public void execute() throws MojoExecutionException {
-        String splitPackage = getPathFromPackage(targetPackage);
-        
-        final File targetFolder = new File(mavenProject.getBasedir(), basePath + splitPackage);
-        if (!sourceFolder.exists())
-            throw new MojoExecutionException("Could not find source folder." + sourceFolder.getName());
-        
-        if (!targetFolder.exists())
-            throw new MojoExecutionException("Could not find specified package. " + targetPackage + " " + targetFolder.getPath());
-        
-        WriteClass<?> writeClass = null;
-        
-        if (fileType == FileType.JSON)
-            writeClass = new WriteJsonClass(targetPackage, basePath, privateConstructor, overwriteClasses);
-        
-        if (fileType == FileType.YAML)
-            writeClass = new WriteYamlClass(targetPackage, basePath, privateConstructor, overwriteClasses);
-        
-        if (writeClass == null)
-            throw new MojoExecutionException("There was a problem getting the file type");
-        
-        try {
-            if (sourceFolder.isDirectory()) {
-                for (File sourceFile : Objects.requireNonNull(sourceFolder.listFiles())) {
-                    writeClass.createJavaClass(sourceFile);
-                }
-            } else {
-                writeClass.createJavaClass(sourceFolder);
-            }
-        } catch (IOException e) {
-            throw new MojoExecutionException(e.getMessage());
-        }
-        
+        runTask();
     }
     
-    public @NotNull String getPathFromPackage(final @NotNull String targetPackage) {
-        return String.join(File.separator, targetPackage.split("\\."));
+    @Override
+    public String getBasePath() {
+        return basePath;
+    }
+    
+    @Override
+    public File getSourceFolder() {
+        return sourceFolder;
+    }
+    
+    @Override
+    public File getBaseDir() {
+        return mavenProject.getBasedir();
+    }
+    
+    @Override
+    public String getTargetPackage() {
+        return targetPackage;
+    }
+    
+    @Override
+    public String getPrivateConstructor() {
+        return privateConstructor;
+    }
+    
+    @Override
+    public boolean isOverwriteClasses() {
+        return overwriteClasses;
+    }
+    
+    @Override
+    public void throwException(String s) throws MojoExecutionException {
+        throw new MojoExecutionException(s);
+    }
+    
+    @Override
+    public FileType getFileType() {
+        return fileType;
     }
 }
